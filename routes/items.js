@@ -42,7 +42,6 @@ router.get('/', function (req, res) {
 /* Create a new item */
 router.post('/', function (req, res) {
   const { name, price, img } = req.body;
-
   const filePath = path.join(__dirname, '..', 'init_data.json');
 
   fs.readFile(filePath, 'utf8', (err, jsonData) => {
@@ -56,17 +55,18 @@ router.post('/', function (req, res) {
       const data = parsed.data || {};
 
       // Find next ID
-      curId += 1;
+      const nextId = Math.max(...Object.keys(data).map(k => parseInt(k)), 0) + 1;
       const product = {
-        id: curId,
+        id: nextId,
         name,
         price,
         img
       };
 
-      data[curId] = product;
+      data[nextId] = product;
+      parsed.data = data; // ✅ Only update data, preserve other keys (e.g., cart)
 
-      const updatedJSON = JSON.stringify({ data }, null, 2);
+      const updatedJSON = JSON.stringify(parsed, null, 2);
 
       fs.writeFile(filePath, updatedJSON, (writeErr) => {
         if (writeErr) {
@@ -84,6 +84,7 @@ router.post('/', function (req, res) {
     }
   });
 });
+
 /* Get a specific item by id */
 router.get('/:id', function(req, res, next) {
     var item = items[req.params.id];

@@ -21,62 +21,61 @@ router.get('/', function(req, res){
     })
 })
 
-router.post('/', (req, res)=>{
-    const { productId} = req.body;
-    console.log('productId', productId)
+router.post('/add-to-cart', (req, res) => {
+    const {id} = req.body
 
-  const filePath = path.join(__dirname, '..', 'init_data.json');
 
-//   fs.readFile(filePath, 'utf8', (err, jsonData) => {
-//     if (err) {
-//       console.error('Error reading file:', err);
-//       return res.status(500).json({ error: 'Failed to read data file' });
-//     }
+    const filePath = path.join(__dirname, '..', 'init_data.json');
 
-//     // try {
-//     //   const parsed = JSON.parse(jsonData);
-//     //   const products = parsed.data || {};
-//     //   const cart = parsed.cart || { items: [], total: 0 };
 
-//     //   const product = products[productId];
-//     //   if (!product) {
-//     //     return res.status(404).json({ error: 'Product not found' });
-//     //   }
+  fs.readFile(filePath, 'utf8', (err, jsonData) => {
+    if (err) {
+      console.error('Error reading file:', err);
+      return res.status(500).json({ error: 'Failed to read data file' });
+    }
 
-//     //   const existingItemIndex = cart.items.findIndex(item => item.id === product.id);
+    try {
+      const parsed = JSON.parse(jsonData);
+      const products = parsed.data || {};
+      const cart = parsed.cart || { items: [] };
 
-//     //   if (existingItemIndex >= 0) {
-//     //     // Update quantity
-//     //     // cart.items[existingItemIndex].quantity += quantity;
-//     //   } else {
-//     //     cart.items.push({
-//     //       id: product.id,
-//     //       name: product.name,
-//     //       price: parseFloat(product.price),
-//     //       img: product.img,
-//     //     //   quantity: quantity
-//     //     });
-//     //   }
+      const product = products[id];
+      if (!product) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
 
-//     //   // Recalculate total
-//     //   cart.total = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-//     //   // Write back to file
-//     //   fs.writeFile(filePath, JSON.stringify({ data: products, cart }, null, 2), (err) => {
-//     //     if (err) {
-//     //       console.error('Error writing file:', err);
-//     //       return res.status(500).json({ error: 'Failed to update cart' });
-//     //     }
 
-//     //     res.status(200).json({ message: 'Product added to cart', cart });
-//     //   });
+      // Check if product already in cart to avoid duplicates
+      const exists = cart.items.some(item => item.id === product.id);
+      if (!exists) {
+        cart.items.push({
+          id: product.id,
+          name: product.name,
+          price: parseFloat(product.price),
+          img: product.img,
+        });
+      }
 
-//     // } catch (parseErr) {
-//     //   console.error('Error parsing JSON:', parseErr);
-//     //   return res.status(500).json({ error: 'Invalid JSON format' });
-//     // }
-//   });
-})
+      parsed.cart = cart;
+
+
+      fs.writeFile(filePath, JSON.stringify(parsed, null, 2), (writeErr) => {
+        if (writeErr) {
+          console.error('Error writing file:', writeErr);
+          return res.status(500).json({ error: 'Failed to update cart' });
+        }
+
+        res.status(200).json({ message: 'Product added to cart', cart });
+      });
+
+    } catch (parseErr) {
+      console.error('Error parsing JSON:', parseErr);
+      return res.status(500).json({ error: 'Invalid JSON format' });
+    }
+  });
+});
+
 
 
 module.exports = router;
