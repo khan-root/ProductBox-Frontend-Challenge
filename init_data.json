@@ -36,5 +36,15 @@
       "price": "89",
       "img": "0909"
     }
+  },
+  "cart": {
+    "items": [
+      {
+        "id": 1,
+        "name": "King Size Bed",
+        "price": "300",
+        "img": "./img/bed.jpg"
+      }
+    ]
   }
 }

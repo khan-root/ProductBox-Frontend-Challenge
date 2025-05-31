@@ -7,17 +7,26 @@ var bodyParser = require('body-parser');
 var logger = require('./lib/logger');
 var cors = require('cors');
 var items = require('./routes/items');
+const cart = require('./routes/cart')
 
 var app = express();
 var log = logger(app);
+
+// Configure CORS with specific options
+
+
+app.use(cors())
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'static')));
-app.use(cors());
+
+// Enable CORS pre-flight for all routes
+// app.options('*', cors());
 
 app.use('/items', items);
+app.use('/cart', cart)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
