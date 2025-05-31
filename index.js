@@ -5,7 +5,7 @@ var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('./lib/logger');
-
+var cors = require('cors');
 var items = require('./routes/items');
 
 var app = express();
@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'static')));
+app.use(cors());
 
 app.use('/items', items);
 

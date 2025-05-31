@@ -3,13 +3,40 @@ var router = express.Router();
 var _ = require('lodash');
 var logger = require('../lib/logger');
 var log = logger();
+const fs = require('fs');
+const path = require('path');
 
 var items = require('../init_data.json').data;
 var curId = _.size(items);
 
 /* GET items listing. */
-router.get('/', function(req, res) {
-    res.json(_.toArray(items));
+router.get('/', function (req, res) {
+  const filePath = path.join(__dirname, '..', 'init_data.json');
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading file:', err);
+      return res.status(500).json({ error: 'Failed to read items data' });
+    }
+
+    try {
+      const parsedData = JSON.parse(data);
+
+      // Extract the object under `data`
+      const dataObject = Array.isArray(parsedData)
+        ? parsedData[0]?.data || {}
+        : parsedData.data || {};
+
+      // Convert to array
+      const dataArray = Object.values(dataObject);
+
+      res.json(dataArray);
+
+    } catch (parseError) {
+      console.error('Error parsing JSON:', parseError);
+      res.status(500).json({ error: 'Failed to parse items data' });
+    }
+  });
 });
 
 /* Create a new item */
