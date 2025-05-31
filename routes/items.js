@@ -40,15 +40,50 @@ router.get('/', function (req, res) {
 });
 
 /* Create a new item */
-router.post('/', function(req, res) {
-    var item = req.body;
-    curId += 1;
-    item.id = curId;
-    items[item.id] = item;
-    log.info('Created item', item);
-    res.json(item);
-});
+router.post('/', function (req, res) {
+  const { name, price, img } = req.body;
 
+  const filePath = path.join(__dirname, '..', 'init_data.json');
+
+  fs.readFile(filePath, 'utf8', (err, jsonData) => {
+    if (err) {
+      console.error('Error reading file:', err);
+      return res.status(500).json({ error: 'Failed to read items data' });
+    }
+
+    try {
+      const parsed = JSON.parse(jsonData);
+      const data = parsed.data || {};
+
+      // Find next ID
+      curId += 1;
+      const product = {
+        id: curId,
+        name,
+        price,
+        img
+      };
+
+      data[curId] = product;
+
+      const updatedJSON = JSON.stringify({ data }, null, 2);
+
+      fs.writeFile(filePath, updatedJSON, (writeErr) => {
+        if (writeErr) {
+          console.error('Error writing file:', writeErr);
+          return res.status(500).json({ error: 'Failed to write items data' });
+        }
+
+        console.log('Product added:', product);
+        res.status(201).json(product);
+      });
+
+    } catch (parseErr) {
+      console.error('Error parsing JSON:', parseErr);
+      res.status(500).json({ error: 'Invalid JSON format' });
+    }
+  });
+});
 /* Get a specific item by id */
 router.get('/:id', function(req, res, next) {
     var item = items[req.params.id];
