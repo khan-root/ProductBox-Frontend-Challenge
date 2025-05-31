@@ -114,6 +114,35 @@ router.delete('/remove-from-cart', (req, res) => {
     });
 });
 
+router.delete('/clear-cart', (req, res) => {
+    const filePath = path.join(__dirname, '..', 'init_data.json');
+
+    fs.readFile(filePath, 'utf8', (err, jsonData) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).json({ error: 'Failed to read data file' });
+        }
+
+        try {
+            const parsed = JSON.parse(jsonData);
+            parsed.cart = parsed.cart || {};
+            parsed.cart.items = []; // Clear only items, not entire cart object
+
+            fs.writeFile(filePath, JSON.stringify(parsed, null, 2), (writeErr) => {
+                if (writeErr) {
+                    console.error('Error writing file:', writeErr);
+                    return res.status(500).json({ error: 'Failed to update cart' });
+                }
+
+                res.status(200).json({ message: 'Cart cleared', cart: parsed.cart });
+            });
+        } catch (parseErr) {
+            console.error('Error parsing JSON:', parseErr);
+            return res.status(500).json({ error: 'Invalid JSON format' });
+        }
+    });
+});
+
 
 
 
