@@ -44,31 +44,6 @@
     }
   },
   "cart": {
-    "items": [
-      {
-        "id": 1,
-        "name": "King Size Bed",
-        "price": "300",
-        "img": "./img/bed.jpg"
-      },
-      {
-        "id": 3,
-        "name": "CD Rack",
-        "price": 100,
-        "img": "./img/rack.jpg"
-      },
-      {
-        "id": 5,
-        "name": "Cookie Jar",
-        "price": 25,
-        "img": "./img/cookies.jpg"
-      },
-      {
-        "id": 6,
-        "name": "test",
-        "price": 89,
-        "img": "0909"
-      }
-    ]
+    "items": []
   }
 }
